@@ -77,20 +77,27 @@ insert into Route (origin, destination, vehicle_id) values
 insert into Shipment (shipment_id, customer_id, recipient_name, recipient_phone, origin_address, origin_city, origin_office_id, destination_location, delivery_address, delivery_city, home_pickup, zone, service_level, price, channel, registration_date, status, failed_attempts) values
 	(1, 1, 'Marta Lopez', '600555666', 'Calle Campoamor 3', 'Oviedo', 1, 'Madrid Office', 'Gran Via 60', 'Madrid', 1, 'NATIONAL', 'STANDARD', 18.00, 'TELEPHONE', '2026-06-08', 'IN_WAREHOUSE', 0),
 	(2, 2, 'Pedro Suarez', '600777888', 'Avenida de la Costa 45', 'Gijon', 2, 'Oviedo Central Office', 'Calle Rosal 9', 'Oviedo', 0, 'REGIONAL', 'EXPRESS', 8.50, 'TELEPHONE', '2026-06-09', 'OUT_FOR_DELIVERY', 1),
-	(3, 3, 'Ana Garcia', '600111222', 'Gran Via 60', 'Madrid', 3, 'Oviedo Central Office', 'Calle Campoamor 3', 'Oviedo', 1, 'NATIONAL', 'EXPRESS', 17.00, 'TELEPHONE', '2026-06-05', 'DELIVERED', 0);
+	(3, 3, 'Ana Garcia', '600111222', 'Gran Via 60', 'Madrid', 3, 'Oviedo Central Office', 'Calle Campoamor 3', 'Oviedo', 1, 'NATIONAL', 'EXPRESS', 17.00, 'TELEPHONE', '2026-06-05', 'DELIVERED', 0),
+	(4, 2, 'Lucia Blanco', '600444555', 'Avenida de la Costa 45', 'Gijon', 2, 'Gijon Office', 'Calle Marques 7', 'Gijon', 0, 'REGIONAL', 'STANDARD', 7.50, 'TELEPHONE', '2026-06-12', 'OUT_FOR_DELIVERY', 3),
+	(5, 4, 'Jorge Vega', '600666777', 'Calle Uria 12', 'Oviedo', 1, 'Madrid Office', 'Plaza Mayor 1', 'Madrid', 0, 'NATIONAL', 'STANDARD', 30.50, 'TELEPHONE', '2026-06-14', 'IN_WAREHOUSE', 0);
 
 insert into Package (package_id, shipment_id, barcode, weight_kg, description, status) values
 	(1, 1, 'PKG-1-1', 2.5, 'Box of books', 'IN_WAREHOUSE'),
 	(2, 1, 'PKG-1-2', 1.7, 'Small parcel', 'IN_WAREHOUSE'),
 	(3, 2, 'PKG-2-1', 1.5, 'Documents envelope', 'OUT_FOR_DELIVERY'),
-	(4, 3, 'PKG-3-1', 8.0, 'Electronics', 'DELIVERED');
+	(4, 3, 'PKG-3-1', 8.0, 'Electronics', 'DELIVERED'),
+	(5, 4, 'PKG-4-1', 5.0, 'Glassware', 'OUT_FOR_DELIVERY'),
+	(6, 5, 'PKG-5-1', 10.0, 'Heavy tools', 'IN_WAREHOUSE'),
+	(7, 5, 'PKG-5-2', 20.0, 'Max weight crate', 'IN_WAREHOUSE');
 
 insert into ShipmentLeg (shipment_id, leg_order, leg_type, origin, destination, vehicle_id, status) values
 	(1, 1, 'PICKUP', 'Calle Campoamor 3, Oviedo', 'Oviedo Central Office', 1, 'COMPLETED'),
 	(1, 2, 'DELIVERY', 'Madrid Office', 'Gran Via 60, Madrid', 2, 'PENDING'),
 	(2, 1, 'DELIVERY', 'Oviedo Central Office', 'Calle Rosal 9, Oviedo', 1, 'IN_PROGRESS'),
 	(3, 1, 'PICKUP', 'Gran Via 60, Madrid', 'Madrid Office', 2, 'COMPLETED'),
-	(3, 2, 'DELIVERY', 'Oviedo Central Office', 'Calle Campoamor 3, Oviedo', 1, 'COMPLETED');
+	(3, 2, 'DELIVERY', 'Oviedo Central Office', 'Calle Campoamor 3, Oviedo', 1, 'COMPLETED'),
+	(4, 1, 'DELIVERY', 'Gijon Office', 'Calle Marques 7, Gijon', 1, 'IN_PROGRESS'),
+	(5, 1, 'DELIVERY', 'Madrid Office', 'Plaza Mayor 1, Madrid', 2, 'PENDING');
 
 insert into TrackingEvent (package_id, event_date, location, status, description) values
 	(1, '2026-06-08', 'Calle Campoamor 3, Oviedo', 'REGISTERED', 'Shipment registered, picked up at home'),
@@ -107,7 +114,16 @@ insert into TrackingEvent (package_id, event_date, location, status, description
 	(4, '2026-06-05', 'Madrid Hub', 'IN_WAREHOUSE', 'Arrived at intermediate warehouse'),
 	(4, '2026-06-06', 'Leon Hub', 'IN_WAREHOUSE', 'Arrived at intermediate warehouse'),
 	(4, '2026-06-06', 'Oviedo Central Office', 'OUT_FOR_DELIVERY', 'Out for delivery'),
-	(4, '2026-06-06', 'Calle Campoamor 3, Oviedo', 'DELIVERED', 'Delivered to recipient');
+	(4, '2026-06-06', 'Calle Campoamor 3, Oviedo', 'DELIVERED', 'Delivered to recipient'),
+	(5, '2026-06-12', 'Avenida de la Costa 45, Gijon', 'REGISTERED', 'Shipment registered at office'),
+	(5, '2026-06-13', 'Gijon Office', 'OUT_FOR_DELIVERY', 'Out for delivery'),
+	(5, '2026-06-13', 'Calle Marques 7, Gijon', 'FAILED_DELIVERY', 'Recipient absent, new attempt scheduled'),
+	(5, '2026-06-14', 'Calle Marques 7, Gijon', 'FAILED_DELIVERY', 'Recipient absent, new attempt scheduled'),
+	(5, '2026-06-15', 'Calle Marques 7, Gijon', 'FAILED_DELIVERY', 'Recipient absent, new attempt scheduled'),
+	(6, '2026-06-14', 'Calle Uria 12, Oviedo', 'REGISTERED', 'Shipment registered at office'),
+	(6, '2026-06-15', 'Leon Hub', 'IN_WAREHOUSE', 'Arrived at intermediate warehouse'),
+	(7, '2026-06-14', 'Calle Uria 12, Oviedo', 'REGISTERED', 'Shipment registered at office'),
+	(7, '2026-06-15', 'Leon Hub', 'IN_WAREHOUSE', 'Arrived at intermediate warehouse');
 
 insert into WarehouseVerification (package_id, warehouse_id, operation, verification_date, barcode_ok, visual_ok, weight_ok, measured_weight_kg, result) values
 	(1, 1, 'UNLOAD', '2026-06-09', 1, 1, 1, 2.5, 'OK'),
@@ -117,4 +133,7 @@ insert into WarehouseVerification (package_id, warehouse_id, operation, verifica
 
 insert into DeliveryAttempt (shipment_id, attempt_number, attempt_date, result, notes) values
 	(2, 1, '2026-06-10', 'ABSENT', 'Recipient absent, rescheduled'),
-	(3, 1, '2026-06-06', 'DELIVERED', 'Signed by recipient');
+	(3, 1, '2026-06-06', 'DELIVERED', 'Signed by recipient'),
+	(4, 1, '2026-06-13', 'ABSENT', 'Recipient absent, rescheduled'),
+	(4, 2, '2026-06-14', 'ABSENT', 'Recipient absent, rescheduled'),
+	(4, 3, '2026-06-15', 'ABSENT', 'Recipient absent, rescheduled');

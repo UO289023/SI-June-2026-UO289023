@@ -67,7 +67,7 @@ public class MainWindow {
 		frame.getContentPane().setLayout(new BorderLayout(5, 5));
 
 		JPanel topPanel = new JPanel(new BorderLayout(5, 0));
-		JLabel lblDate = new JLabel("System Date (yyyy-MM-dd):");
+		JLabel lblDate = new JLabel("<html>System Date (yyyy-MM-dd) <font color='red'>*</font></html>");
 		lblDate.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		txtSystemDate = new JTextField(Util.dateToIsoString(new Date()));
 		txtSystemDate.setFont(new Font("Segoe UI", Font.PLAIN, 12));
@@ -185,20 +185,15 @@ public class MainWindow {
 
 	private boolean checkDateAndConfirm() {
 		String dateStr = txtSystemDate.getText().trim();
-		boolean isValid;
 		try {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT);
 			LocalDate.parse(dateStr, formatter);
-			isValid = true;
+			return true;
 		} catch (Exception ex) {
-			isValid = false;
+			JOptionPane.showMessageDialog(frame,
+					"The system date '" + dateStr + "' is not a valid date (expected format yyyy-MM-dd).\nPlease enter a valid date before using the system.",
+					"Invalid System Date", JOptionPane.ERROR_MESSAGE);
+			return false;
 		}
-		if (!isValid) {
-			int choice = JOptionPane.showConfirmDialog(frame,
-					"The input date is incorrect or does not exist, the system might not show all the information.\nAre you sure you want to continue?",
-					"Invalid Date Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-			return choice == JOptionPane.YES_OPTION;
-		}
-		return true;
 	}
 }

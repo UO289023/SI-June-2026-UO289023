@@ -42,11 +42,11 @@ public class CalculateRateView {
 		lblResult = new JLabel("Rate: -");
 		lblResult.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
-		formPanel.add(new JLabel("Service level:"));
+		formPanel.add(new JLabel("<html>Service level <font color='red'>*</font></html>"));
 		formPanel.add(cbServiceLevel);
-		formPanel.add(new JLabel("Destination zone:"));
+		formPanel.add(new JLabel("<html>Destination zone <font color='red'>*</font></html>"));
 		formPanel.add(cbZone);
-		formPanel.add(new JLabel("Package weight (kg):"));
+		formPanel.add(new JLabel("<html>Package weight (kg) <font color='red'>*</font></html>"));
 		formPanel.add(txtWeight);
 		formPanel.add(btnCalculate);
 		formPanel.add(lblResult);

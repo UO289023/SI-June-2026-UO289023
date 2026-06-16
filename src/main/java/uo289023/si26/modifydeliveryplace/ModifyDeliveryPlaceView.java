@@ -66,11 +66,11 @@ public class ModifyDeliveryPlaceView {
 
 		changePanel.add(rbNewAddress);
 		changePanel.add(rbLocation);
-		changePanel.add(new JLabel("New address:"));
-		changePanel.add(new JLabel("Office/warehouse:"));
+		changePanel.add(new JLabel("<html>New address <font color='red'>*</font></html>"));
+		changePanel.add(new JLabel("<html>Office/warehouse <font color='red'>*</font></html>"));
 		changePanel.add(txtNewAddress);
 		changePanel.add(cbLocation);
-		changePanel.add(new JLabel("New city:"));
+		changePanel.add(new JLabel("<html>New city <font color='red'>*</font></html>"));
 		changePanel.add(new JLabel(""));
 		changePanel.add(txtNewCity);
 		changePanel.add(btnApply);

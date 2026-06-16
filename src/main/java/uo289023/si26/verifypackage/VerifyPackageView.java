@@ -42,11 +42,11 @@ public class VerifyPackageView {
 		txtBarcode = new JTextField();
 		btnSearch = new JButton("Read Barcode");
 
-		searchPanel.add(new JLabel("Warehouse:"));
+		searchPanel.add(new JLabel("<html>Warehouse <font color='red'>*</font></html>"));
 		searchPanel.add(cbWarehouse);
-		searchPanel.add(new JLabel("Operation:"));
+		searchPanel.add(new JLabel("<html>Operation <font color='red'>*</font></html>"));
 		searchPanel.add(cbOperation);
-		searchPanel.add(new JLabel("Package barcode:"));
+		searchPanel.add(new JLabel("<html>Package barcode <font color='red'>*</font></html>"));
 		searchPanel.add(txtBarcode);
 		searchPanel.add(new JLabel(""));
 		searchPanel.add(btnSearch);
@@ -68,7 +68,7 @@ public class VerifyPackageView {
 
 		checksPanel.add(new JLabel("Visual inspection:"));
 		checksPanel.add(chkVisualOk);
-		checksPanel.add(new JLabel("Measured weight (kg):"));
+		checksPanel.add(new JLabel("<html>Measured weight (kg) <font color='red'>*</font></html>"));
 		checksPanel.add(txtMeasuredWeight);
 		checksPanel.add(new JLabel(""));
 		checksPanel.add(btnRegisterVerification);

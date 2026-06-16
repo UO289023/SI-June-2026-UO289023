@@ -65,13 +65,13 @@ public class RegisterShipmentView {
 		cbZone = new JComboBox<>(new String[] { "LOCAL", "REGIONAL", "NATIONAL" });
 		cbServiceLevel = new JComboBox<>(new String[] { "STANDARD", "EXPRESS" });
 
-		formPanel.add(new JLabel("Customer (sender):"));
+		formPanel.add(new JLabel("<html>Customer (sender) <font color='red'>*</font></html>"));
 		formPanel.add(cbCustomer);
-		formPanel.add(new JLabel("Recipient name:"));
+		formPanel.add(new JLabel("<html>Recipient name <font color='red'>*</font></html>"));
 		formPanel.add(txtRecipientName);
-		formPanel.add(new JLabel("Recipient phone:"));
+		formPanel.add(new JLabel("<html>Recipient phone <font color='red'>*</font></html>"));
 		formPanel.add(txtRecipientPhone);
-		formPanel.add(new JLabel("Origin office:"));
+		formPanel.add(new JLabel("<html>Origin office <font color='red'>*</font></html>"));
 		formPanel.add(cbOriginOffice);
 		formPanel.add(new JLabel("Home pickup:"));
 		formPanel.add(chkHomePickup);
@@ -79,15 +79,15 @@ public class RegisterShipmentView {
 		formPanel.add(txtPickupAddress);
 		formPanel.add(new JLabel("Pickup city:"));
 		formPanel.add(txtPickupCity);
-		formPanel.add(new JLabel("Destination office/warehouse:"));
+		formPanel.add(new JLabel("<html>Destination office/warehouse <font color='red'>*</font></html>"));
 		formPanel.add(cbDestinationLocation);
-		formPanel.add(new JLabel("Delivery address:"));
+		formPanel.add(new JLabel("<html>Delivery address <font color='red'>*</font></html>"));
 		formPanel.add(txtDeliveryAddress);
-		formPanel.add(new JLabel("Delivery city:"));
+		formPanel.add(new JLabel("<html>Delivery city <font color='red'>*</font></html>"));
 		formPanel.add(txtDeliveryCity);
-		formPanel.add(new JLabel("Destination zone:"));
+		formPanel.add(new JLabel("<html>Destination zone <font color='red'>*</font></html>"));
 		formPanel.add(cbZone);
-		formPanel.add(new JLabel("Service level:"));
+		formPanel.add(new JLabel("<html>Service level <font color='red'>*</font></html>"));
 		formPanel.add(cbServiceLevel);
 
 		frame.getContentPane().add(formPanel, BorderLayout.NORTH);
@@ -100,7 +100,7 @@ public class RegisterShipmentView {
 		txtPackageDescription = new JTextField();
 		btnAddPackage = new JButton("Add Package");
 		btnRemovePackage = new JButton("Remove Selected");
-		addPanel.add(new JLabel("Weight (kg):"));
+		addPanel.add(new JLabel("<html>Weight (kg) <font color='red'>*</font></html>"));
 		addPanel.add(txtPackageWeight);
 		addPanel.add(new JLabel("Description:"));
 		addPanel.add(txtPackageDescription);

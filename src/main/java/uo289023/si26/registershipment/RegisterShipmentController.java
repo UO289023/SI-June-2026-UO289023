@@ -118,51 +118,33 @@ public class RegisterShipmentController {
 
 		int customerId = Integer.parseInt(((String) view.getCbCustomer().getSelectedItem()).split(" - ")[0]);
 		int originOfficeId = Integer.parseInt(((String) view.getCbOriginOffice().getSelectedItem()).split(" - ")[0]);
-		Object[] originOffice = model.getOffice(originOfficeId);
-		String originOfficeName = (String) originOffice[0];
 		String destinationLocation = (String) view.getCbDestinationLocation().getSelectedItem();
 		String zone = (String) view.getCbZone().getSelectedItem();
 		String serviceLevel = (String) view.getCbServiceLevel().getSelectedItem();
 
 		boolean homePickup = view.getChkHomePickup().isSelected();
-		String originAddress;
-		String originCity;
+		String pickupAddress = "";
+		String pickupCity = "";
 		if (homePickup) {
-			originAddress = view.getTxtPickupAddress().getText().trim();
-			originCity = view.getTxtPickupCity().getText().trim();
-			if (originAddress.isEmpty() || originCity.isEmpty())
+			pickupAddress = view.getTxtPickupAddress().getText().trim();
+			pickupCity = view.getTxtPickupCity().getText().trim();
+			if (pickupAddress.isEmpty() || pickupCity.isEmpty())
 				throw new ApplicationException("Pickup address and city are required for home pickup");
-		} else {
-			originAddress = (String) originOffice[1];
-			originCity = (String) originOffice[2];
+		}
+
+		int packageCount = view.getPackagesModel().getRowCount();
+		double[] weights = new double[packageCount];
+		String[] descriptions = new String[packageCount];
+		for (int i = 0; i < packageCount; i++) {
+			weights[i] = ((Number) view.getPackagesModel().getValueAt(i, 0)).doubleValue();
+			descriptions[i] = (String) view.getPackagesModel().getValueAt(i, 1);
 		}
 
 		double totalPrice = calculateTotalPrice();
 
-		int shipmentId = model.insertShipment(customerId, recipientName, recipientPhone, originAddress, originCity,
-				originOfficeId, destinationLocation, deliveryAddress, deliveryCity, homePickup ? 1 : 0, zone,
-				serviceLevel, totalPrice, simulatedDate);
-
-		int legOrder = 1;
-		if (homePickup) {
-			model.insertLeg(shipmentId, legOrder, "PICKUP", originAddress + ", " + originCity, originOfficeName,
-					model.getPickupVehicle(originOfficeName));
-			legOrder++;
-		}
-		model.insertLeg(shipmentId, legOrder, "DELIVERY", destinationLocation,
-				deliveryAddress + ", " + deliveryCity, model.getDeliveryVehicle(destinationLocation));
-
-		String registrationLocation = homePickup ? originAddress + ", " + originCity : originOfficeName;
-		String registrationDescription = homePickup ? "Shipment registered by telephone, home pickup scheduled"
-				: "Shipment registered by telephone at office";
-		for (int i = 0; i < view.getPackagesModel().getRowCount(); i++) {
-			double weight = ((Number) view.getPackagesModel().getValueAt(i, 0)).doubleValue();
-			String description = (String) view.getPackagesModel().getValueAt(i, 1);
-			String barcode = "PKG-" + shipmentId + "-" + (i + 1);
-			int packageId = model.insertPackage(shipmentId, barcode, weight, description);
-			model.insertTrackingEvent(packageId, simulatedDate, registrationLocation, "REGISTERED",
-					registrationDescription);
-		}
+		int shipmentId = model.registerShipment(customerId, recipientName, recipientPhone, homePickup, pickupAddress,
+				pickupCity, originOfficeId, destinationLocation, deliveryAddress, deliveryCity, zone, serviceLevel,
+				weights, descriptions, simulatedDate);
 
 		JOptionPane.showMessageDialog(view.getFrame(),
 				String.format("Shipment %d registered with %d package(s).%nTotal price: %.2f EUR", shipmentId,

@@ -59,6 +59,49 @@ public class RegisterShipmentModel {
 		return ((Number) result.get(0)[0]).intValue();
 	}
 
+	public double calculateTotalPrice(String serviceLevel, String zone, double[] weights) {
+		double total = 0;
+		for (double weight : weights)
+			total += getRate(serviceLevel, zone, weight);
+		return total;
+	}
+
+	public int registerShipment(int customerId, String recipientName, String recipientPhone, boolean homePickup,
+			String pickupAddress, String pickupCity, int originOfficeId, String destinationLocation,
+			String deliveryAddress, String deliveryCity, String zone, String serviceLevel, double[] weights,
+			String[] descriptions, String registrationDate) {
+		Object[] originOffice = getOffice(originOfficeId);
+		String originOfficeName = (String) originOffice[0];
+		String originAddress = homePickup ? pickupAddress : (String) originOffice[1];
+		String originCity = homePickup ? pickupCity : (String) originOffice[2];
+
+		double totalPrice = calculateTotalPrice(serviceLevel, zone, weights);
+
+		int shipmentId = insertShipment(customerId, recipientName, recipientPhone, originAddress, originCity,
+				originOfficeId, destinationLocation, deliveryAddress, deliveryCity, homePickup ? 1 : 0, zone,
+				serviceLevel, totalPrice, registrationDate);
+
+		int legOrder = 1;
+		if (homePickup) {
+			insertLeg(shipmentId, legOrder, "PICKUP", originAddress + ", " + originCity, originOfficeName,
+					getPickupVehicle(originOfficeName));
+			legOrder++;
+		}
+		insertLeg(shipmentId, legOrder, "DELIVERY", destinationLocation, deliveryAddress + ", " + deliveryCity,
+				getDeliveryVehicle(destinationLocation));
+
+		String registrationLocation = homePickup ? originAddress + ", " + originCity : originOfficeName;
+		String registrationDescription = homePickup ? "Shipment registered by telephone, home pickup scheduled"
+				: "Shipment registered by telephone at office";
+		for (int i = 0; i < weights.length; i++) {
+			String barcode = "PKG-" + shipmentId + "-" + (i + 1);
+			int packageId = insertPackage(shipmentId, barcode, weights[i], descriptions[i]);
+			insertTrackingEvent(packageId, registrationDate, registrationLocation, "REGISTERED",
+					registrationDescription);
+		}
+		return shipmentId;
+	}
+
 	public int insertShipment(int customerId, String recipientName, String recipientPhone, String originAddress,
 			String originCity, int originOfficeId, String destinationLocation, String deliveryAddress,
 			String deliveryCity, int homePickup, String zone, String serviceLevel, double price,

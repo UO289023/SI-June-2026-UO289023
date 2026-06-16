@@ -7,7 +7,50 @@ import uo289023.si26.utils.ApplicationException;
 import uo289023.si26.utils.Database;
 
 public class RegisterDeliveryModel {
+
+	private static final int MAX_ADDITIONAL_ATTEMPTS = 3;
+
 	protected Database db = new Database();
+
+	public String registerDelivery(int shipmentId, String result, String date, String notes) {
+		ShipmentDTO shipment = getShipment(shipmentId);
+		if (date.compareTo(shipment.getRegistrationDate()) < 0)
+			throw new ApplicationException("Delivery date " + date
+					+ " cannot be earlier than the shipment registration date " + shipment.getRegistrationDate());
+		String deliveryPlace = shipment.getDeliveryAddress() + ", " + shipment.getDeliveryCity();
+		int attemptNumber = shipment.getFailedAttempts() + 1;
+
+		if ("DELIVERED".equals(result)) {
+			insertDeliveryAttempt(shipmentId, attemptNumber, date, "DELIVERED",
+					notes == null || notes.isEmpty() ? "Delivered to recipient" : notes);
+			updateShipmentStatus(shipmentId, "DELIVERED", shipment.getFailedAttempts());
+			completeDeliveryLeg(shipmentId);
+			updatePackagesStatus(shipmentId, "DELIVERED");
+			for (Object[] pkg : getShipmentPackageIds(shipmentId))
+				insertTrackingEvent(((Number) pkg[0]).intValue(), date, deliveryPlace, "DELIVERED",
+						"Delivered to recipient");
+			return "DELIVERED";
+		}
+
+		int failedAttempts = shipment.getFailedAttempts() + 1;
+		insertDeliveryAttempt(shipmentId, attemptNumber, date, "ABSENT",
+				notes == null || notes.isEmpty() ? "Recipient absent" : notes);
+		if (failedAttempts > MAX_ADDITIONAL_ATTEMPTS) {
+			updateShipmentStatus(shipmentId, "AT_OFFICE_FOR_PICKUP", failedAttempts);
+			updatePackagesStatus(shipmentId, "AT_OFFICE_FOR_PICKUP");
+			for (Object[] pkg : getShipmentPackageIds(shipmentId))
+				insertTrackingEvent(((Number) pkg[0]).intValue(), date, shipment.getDestinationLocation(),
+						"AT_OFFICE_FOR_PICKUP", "All delivery attempts failed, package remains at "
+								+ shipment.getDestinationLocation() + ", customer advised");
+			return "AT_OFFICE_FOR_PICKUP";
+		}
+		updateShipmentStatus(shipmentId, "FAILED_DELIVERY", failedAttempts);
+		updatePackagesStatus(shipmentId, "FAILED_DELIVERY");
+		for (Object[] pkg : getShipmentPackageIds(shipmentId))
+			insertTrackingEvent(((Number) pkg[0]).intValue(), date, deliveryPlace, "FAILED_DELIVERY",
+					"Recipient absent, new delivery attempt scheduled");
+		return "FAILED_DELIVERY";
+	}
 
 	public List<ShipmentDTO> getPendingDeliveries() {
 		return db.executeQueryPojo(ShipmentDTO.class,
@@ -17,7 +60,7 @@ public class RegisterDeliveryModel {
 
 	public ShipmentDTO getShipment(int shipmentId) {
 		List<ShipmentDTO> result = db.executeQueryPojo(ShipmentDTO.class,
-				"select shipment_id as shipmentId, recipient_name as recipientName, delivery_address as deliveryAddress, delivery_city as deliveryCity, destination_location as destinationLocation, status, failed_attempts as failedAttempts "
+				"select shipment_id as shipmentId, recipient_name as recipientName, delivery_address as deliveryAddress, delivery_city as deliveryCity, destination_location as destinationLocation, registration_date as registrationDate, status, failed_attempts as failedAttempts "
 						+ "from Shipment where shipment_id=?",
 				shipmentId);
 		if (result.isEmpty())

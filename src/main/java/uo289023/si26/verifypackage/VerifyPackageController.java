@@ -8,8 +8,6 @@ import uo289023.si26.utils.SwingUtil;
 
 public class VerifyPackageController {
 
-	private static final double WEIGHT_TOLERANCE = 0.05;
-
 	private VerifyPackageModel model;
 	private VerifyPackageView view;
 	private String simulatedDate;
@@ -66,36 +64,16 @@ public class VerifyPackageController {
 			throw new ApplicationException("Measured weight must be greater than zero");
 
 		int warehouseId = Integer.parseInt(((String) view.getCbWarehouse().getSelectedItem()).split(" - ")[0]);
-		String warehouseName = ((String) view.getCbWarehouse().getSelectedItem()).split(" - ")[1];
 		String operation = (String) view.getCbOperation().getSelectedItem();
 		boolean visualOk = view.getChkVisualOk().isSelected();
-		boolean weightOk = Math.abs(measuredWeight - currentPackage.getWeightKg()) <= WEIGHT_TOLERANCE
-				* currentPackage.getWeightKg();
-		boolean allOk = visualOk && weightOk;
-		String result = allOk ? "OK" : "INCIDENT";
 
-		model.insertVerification(currentPackage.getPackageId(), warehouseId, operation, simulatedDate, 1,
-				visualOk ? 1 : 0, weightOk ? 1 : 0, measuredWeight, result);
-
-		String newStatus;
-		String description;
-		if (!allOk) {
-			newStatus = "RETAINED";
-			description = "Verification incident on " + operation.toLowerCase() + ": "
-					+ (visualOk ? "" : "packaging damaged ") + (weightOk ? "" : "weight loss detected");
-		} else if ("LOAD".equals(operation)) {
-			newStatus = "IN_TRANSIT";
-			description = "Package verified and loaded at warehouse";
-		} else {
-			newStatus = "IN_WAREHOUSE";
-			description = "Package verified and unloaded at warehouse";
-		}
-		model.updatePackageStatus(currentPackage.getPackageId(), newStatus);
-		model.insertTrackingEvent(currentPackage.getPackageId(), simulatedDate, warehouseName, newStatus,
-				description.trim());
+		String newStatus = model.verifyPackage(currentPackage.getBarcode(), warehouseId, operation, simulatedDate,
+				visualOk, measuredWeight);
+		boolean allOk = !"RETAINED".equals(newStatus);
 
 		JOptionPane.showMessageDialog(view.getFrame(),
-				"Verification registered with result " + result + ".\nPackage status: " + newStatus,
+				"Verification registered with result " + (allOk ? "OK" : "INCIDENT") + ".\nPackage status: "
+						+ newStatus,
 				"Verification Registered",
 				allOk ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE);
 		searchPackage();

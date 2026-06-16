@@ -46,7 +46,7 @@ public class TrackShipmentController {
 		if (view.getCbCustomer().getSelectedItem() == null)
 			return;
 		int customerId = Integer.parseInt(((String) view.getCbCustomer().getSelectedItem()).split(" - ")[0]);
-		List<TrackedPackageDTO> packages = model.getCustomerPackages(customerId);
+		List<TrackedPackageDTO> packages = model.getCustomerPackages(customerId, simulatedDate);
 		view.getTablePackages().setModel(SwingUtil.getTableModelFromPojos(packages,
 				new String[] { "barcode", "registrationDate", "deliveryPlace", "status", "lastLocation" }));
 		SwingUtil.autoAdjustColumns(view.getTablePackages());
@@ -58,7 +58,7 @@ public class TrackShipmentController {
 		String barcode = SwingUtil.getSelectedKey(view.getTablePackages());
 		if (barcode.isEmpty())
 			return;
-		List<TrackingEventDTO> events = model.getPackageEvents(barcode);
+		List<TrackingEventDTO> events = model.getPackageEvents(barcode, simulatedDate);
 		view.getTableEvents().setModel(SwingUtil.getTableModelFromPojos(events,
 				new String[] { "eventDate", "location", "status", "description" }));
 		SwingUtil.autoAdjustColumns(view.getTableEvents());

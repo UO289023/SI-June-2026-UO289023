@@ -1,4 +1,4 @@
-package uo289023.si26.verifypackage;
+package uo289023.si26.pa_tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -12,11 +12,15 @@ import org.junit.jupiter.api.Test;
 import uo289023.si26.BaseModelTest;
 import uo289023.si26.dtos.PackageDTO;
 import uo289023.si26.utils.ApplicationException;
+import uo289023.si26.verifypackage.VerifyPackageModel;
 
+// Use case 1 - Verify package at warehouse (VerifyPackageModel)
+// Each test is annotated with the test case (TC) and equivalence class it covers.
 public class VerifyPackageModelTest extends BaseModelTest {
 
 	private VerifyPackageModel model = new VerifyPackageModel();
 
+	// TC6 - Use case 1 - support: existing barcode lookup returns the package data
 	@Test
 	public void testFindExistingPackageReturnsItsData() {
 		PackageDTO pkg = model.findPackageByBarcode("PKG-1-1");
@@ -24,17 +28,20 @@ public class VerifyPackageModelTest extends BaseModelTest {
 		assertEquals(2.5, pkg.getWeightKg(), 0.001, "The declared weight must be read from the database");
 	}
 
+	// TC7 - Use case 1 - invalid class: a non-existent barcode matches no package (returns null)
 	@Test
 	public void testFindNonexistentPackageReturnsNull() {
 		assertNull(model.findPackageByBarcode("DOES-NOT-EXIST"), "A wrong barcode must not match any package");
 	}
 
+	// TC3 - Use case 1 - valid (boundary): weight tolerance at exactly 5% (in) and just above 5% (out)
 	@Test
 	public void testWeightToleranceBoundary() {
 		assertTrue(model.isWeightOk(2.5, 2.625), "A 5% difference is still within tolerance");
 		assertFalse(model.isWeightOk(2.5, 2.7), "A difference above 5% means weight loss");
 	}
 
+	// TC1 - Use case 1 - valid: existing + UNLOAD + visual OK + weight within tolerance -> OK / IN_WAREHOUSE
 	@Test
 	public void testUnloadValidPackageGivesOkResultAndInWarehouseStatus() {
 		String status = model.verifyPackage("PKG-1-1", 1, "UNLOAD", "2026-06-11", true, 2.5);
@@ -50,12 +57,14 @@ public class VerifyPackageModelTest extends BaseModelTest {
 				"Package status must be updated");
 	}
 
+	// TC2 - Use case 1 - valid: existing + LOAD + visual OK + weight within tolerance -> OK / IN_TRANSIT
 	@Test
 	public void testLoadValidPackageGivesInTransitStatus() {
 		String status = model.verifyPackage("PKG-1-1", 1, "LOAD", "2026-06-11", true, 2.5);
 		assertEquals("IN_TRANSIT", status, "A correct loaded package must leave the warehouse in transit");
 	}
 
+	// TC4 - Use case 1 - invalid class: packaging damaged (visual check fails) -> INCIDENT / RETAINED
 	@Test
 	public void testVisualDamageGivesIncidentAndRetainsPackage() {
 		String status = model.verifyPackage("PKG-1-1", 1, "UNLOAD", "2026-06-11", false, 2.5);
@@ -67,6 +76,7 @@ public class VerifyPackageModelTest extends BaseModelTest {
 		assertEquals(0, ((Number) verification[1]).intValue(), "Visual check must be recorded as failed");
 	}
 
+	// TC5 - Use case 1 - invalid class: weight loss outside the 5% tolerance -> INCIDENT / RETAINED
 	@Test
 	public void testWeightLossGivesIncidentAndRetainsPackage() {
 		String status = model.verifyPackage("PKG-1-1", 1, "UNLOAD", "2026-06-11", true, 2.0);
@@ -78,6 +88,7 @@ public class VerifyPackageModelTest extends BaseModelTest {
 		assertEquals(0, ((Number) verification[1]).intValue(), "Weight check must be recorded as failed");
 	}
 
+	// TC8 - Use case 1 - invalid class: verification date earlier than registration -> exception, nothing persisted
 	@Test
 	public void testVerifyBeforeRegistrationDateThrowsAndDoesNotPersistAnything() {
 		long verificationsBefore = count("WarehouseVerification");
@@ -90,6 +101,7 @@ public class VerifyPackageModelTest extends BaseModelTest {
 				"The package status must remain unchanged");
 	}
 
+	// TC7 - Use case 1 - invalid class: a non-existent barcode is rejected -> exception, nothing persisted
 	@Test
 	public void testVerifyNonexistentPackageThrowsAndDoesNotPersistAnything() {
 		long verificationsBefore = count("WarehouseVerification");
